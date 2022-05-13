@@ -1,32 +1,38 @@
 from copy import deepcopy
+from matplotlib.pyplot import eventplot
 import pygame
+
 
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 
-def minimax(position, depth, max_player, game):
+def minimax(position, depth, alpha, beta, max_player, game):
     if depth == 0 or position.winner() != None:
         return position.evaluate(), position
     
-    if max_player:
+    if max_player == WHITE:
         maxEval = float('-inf')
         best_move = None
         for move in get_all_moves(position, WHITE, game):
-            evaluation = minimax(move, depth-1, False, game)[0]
+            evaluation = minimax(move, depth-1, alpha, beta, RED, game)[0]
             maxEval = max(maxEval, evaluation)
+            alpha = max(alpha, evaluation)
             if maxEval == evaluation:
                 best_move = move
-        
+            if beta <= alpha:
+                break
         return maxEval, best_move
     else:
         minEval = float('inf')
         best_move = None
         for move in get_all_moves(position, RED, game):
-            evaluation = minimax(move, depth-1, True, game)[0]
+            evaluation = minimax(move, depth-1, alpha, beta, WHITE, game)[0]
             minEval = min(minEval, evaluation)
+            beta = min(beta,evaluation)
             if minEval == evaluation:
                 best_move = move
-        
+            if beta <= alpha:
+                break
         return minEval, best_move
 
 
@@ -37,6 +43,8 @@ def simulate_move(piece, move, board, game, skip):
 
     return board
 
+def eval(board):
+    return board.evaluate()
 
 def get_all_moves(board, color, game):
     moves = []
@@ -49,7 +57,10 @@ def get_all_moves(board, color, game):
             temp_piece = temp_board.get_piece(piece.row, piece.col)
             new_board = simulate_move(temp_piece, move, temp_board, game, skip)
             moves.append(new_board)
-    
+            if (color == WHITE):
+                moves.sort(key=eval)
+            else:
+                moves.sort(reverse=True, key=eval)
     return moves
 
 

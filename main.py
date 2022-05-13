@@ -1,4 +1,5 @@
 import pygame
+from sympy import beta
 from checkers.constants import WIDTH, HEIGHT, SQUARE_SIZE, RED, WHITE
 from checkers.game import Game
 from minimax.algorithm import minimax
@@ -15,6 +16,9 @@ def get_row_col_from_mouse(pos):
     return row, col
 
 def main():
+    # global Alpha, Beta
+    Alpha = float('-inf')
+    Beta = float('inf')
     run = True
     clock = pygame.time.Clock()
     game = Game(WIN)
@@ -23,7 +27,7 @@ def main():
         clock.tick(FPS)
         
         if game.turn == WHITE:
-            _, new_board = minimax(game.get_board(), 2, WHITE, game)
+            _, new_board = minimax(game.get_board(), 5, Alpha, Beta, WHITE, game)
             game.ai_move(new_board)
 
         if game.winner() != None:
